@@ -18,28 +18,25 @@ cdd() {
   sort $cdhistory | uniq > $tmp
   cp $tmp $cdhistory
 
-  # filtre results and show line numbers
-  # TODO use many arguments as many pattern to match using grep. ex. "cdd test
-  #      python" should match a line with test AND python.
   cdhistorygreped=$(mktemp)
   cdhistorygrepedcolored=$(mktemp)
-
-  # show result with line numbers
-  # mark current directory with a *
-
   # now we iterate through all the argument and ensure every one match
   #   this allow: 
   #      cdd test python
   #   matching path containing test and python
 
   cp $cdhistory $tmp
+  # show some color!
+  # https://wiki.archlinux.org/index.php/Color_Bash_Prompt
   #bldred='\e[1;31m' # Red
   #txtrst='\e[0m'    # Text Reset
-  grep="grep -i --color "
+  if [ "$*" == "" ]; then
+      grep="cat"
+  else
+      grep="grep -i --color -e '/'"
+  fi
   for arg in $*;
   do
-      # show some color!
-      # https://wiki.archlinux.org/index.php/Color_Bash_Prompt
       grep="$grep -e $arg"
       cat $tmp | sed -n "s#$arg#&#ip" > $cdhistorygreped
       #$DEBUG && cat $cdhistorygreped
@@ -66,7 +63,7 @@ cdd() {
 
   else
 
-      #show restults
+      #show restults whith line number and mark current directory
       $DEBUG && echo "show results"
       cat $cdhistorygreped | sed "s#^$(pwd)\$#\*\ &#g" | nl  | $grep
 
