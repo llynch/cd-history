@@ -28,23 +28,26 @@ cdd() {
   cp $cdhistory $tmp
   # show some color!
   # https://wiki.archlinux.org/index.php/Color_Bash_Prompt
-  #bldred='\e[1;31m' # Red
-  #txtrst='\e[0m'    # Text Reset
+  bldred=$(echo -e '\e[1;33m') # Red
+  colorreset=$(echo -e '\e[0m')    # Text Reset
   if [ "$*" == "" ]; then
       grep="cat"
   else
       grep="grep -i --color -e '/'"
   fi
+  i=31 # start in red
   for arg in $*;
   do
+      color=$(echo -e "\e[1;${i}m")
       grep="$grep -e $arg"
-      cat $tmp | sed -n "s#$arg#&#ip" > $cdhistorygreped
-      #$DEBUG && cat $cdhistorygreped
-      #cat $tmp | grep -i "$arg" > $cdhistorygreped
+      cat $tmp | sed -n "s#$arg#$color&$colorreset#ip" > $cdhistorygrepedcolored
 
-      cp $cdhistorygreped $tmp
+      cp $cdhistorygrepedcolored $tmp
+      i=$(expr $i + 1)
   done
-  cp $tmp $cdhistorygreped
+  cp $tmp $cdhistorygrepedcolored
+
+  cat $cdhistory | $grep > $cdhistorygreped
 
   $DEBUG && echo "filter done" 
   # get the number of results for expression
@@ -65,7 +68,7 @@ cdd() {
 
       #show restults whith line number and mark current directory
       $DEBUG && echo "show results"
-      cat $cdhistorygreped | sed "s#^$(pwd)\$#\*\ &#g" | nl  | $grep
+      cat $cdhistorygrepedcolored | sed "s#^$(pwd)\$#\*\ &#g" | nl
 
     # ask the user for a number
     echo -n "choose a number: "; 
@@ -74,7 +77,9 @@ cdd() {
     # execute user choice
     if [ "$line" != "" ]; 
     then 
-      \cd $(sed -n "${line}p" $cdhistorygreped);
+      directory=$(sed -n "${line}p" $cdhistorygreped | cat)
+      $DEBUG && echo $directory
+      \cd "$directory"
     fi; 
 
   fi;
