@@ -35,10 +35,12 @@ cdd() {
   cp $cdhistory $tmp
   #bldred='\e[1;31m' # Red
   #txtrst='\e[0m'    # Text Reset
+  grep="grep -i --color "
   for arg in $*;
   do
       # show some color!
       # https://wiki.archlinux.org/index.php/Color_Bash_Prompt
+      grep="$grep -e $arg"
       cat $tmp | sed -n "s#$arg#&#ip" > $cdhistorygreped
       #$DEBUG && cat $cdhistorygreped
       #cat $tmp | grep -i "$arg" > $cdhistorygreped
@@ -66,10 +68,7 @@ cdd() {
 
       #show restults
       $DEBUG && echo "show results"
-      cat $cdhistorygreped | sed "s#^$(pwd)\$#\*\ &#g"  | nl  | while line;
-      do
-        echo -n "$line"
-      done
+      cat $cdhistorygreped | sed "s#^$(pwd)\$#\*\ &#g" | nl  | $grep
 
     # ask the user for a number
     echo -n "choose a number: "; 
