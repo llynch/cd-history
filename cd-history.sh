@@ -18,13 +18,14 @@ cdd() {
   sort $cdhistory | uniq > $tmp
   cp $tmp $cdhistory
 
+  # we'll need temp files
   cdhistorygreped=$(mktemp)
   cdhistorygrepedcolored=$(mktemp)
+
   # now we iterate through all the argument and ensure every one match
   #   this allow: 
   #      cdd test python
   #   matching path containing test and python
-
   cp $cdhistory $tmp
   # show some color!
   # https://wiki.archlinux.org/index.php/Color_Bash_Prompt
@@ -46,6 +47,7 @@ cdd() {
   done
   cp $tmp $cdhistorygrepedcolored
 
+  # a non colored version of the results
   $DEBUG && echo "grep expression: $grep"
   eval "cat $cdhistory | $grep > $cdhistorygreped"
 
@@ -70,10 +72,10 @@ cdd() {
 
   else
 
-      #show restults whith line number and mark current directory
-      $DEBUG && echo "show results"
-      $DEBUG && cat $cdhistorygreped
-      cat $cdhistorygrepedcolored | sed "s#^$(pwd)\$#\*\ &#g" | nl
+    # show restults whith line number and mark current directory
+    $DEBUG && echo "show results"
+    $DEBUG && cat $cdhistorygreped
+    cat $cdhistorygrepedcolored | sed "s#^$(pwd)\$#\*\ &#g" | nl
 
     # ask the user for a number
     echo -n "choose a number: "; 
@@ -88,5 +90,10 @@ cdd() {
     fi; 
 
   fi;
+
+  # delete temp files
+  /bin/rm $tmp
+  /bin/rm $cdhistorygreped
+  /bin/rm $cdhistorygrepedcolored
 }
 
