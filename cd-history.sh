@@ -62,8 +62,8 @@ cdd() {
     $DEBUG && echo "filtered colored"
     $DEBUG && cat $cdhistorygrepedcolored
     # only one result so cd to it directly
-    directory=$(sed -n "1p" $cdhistorygreped | cat)
-    $DEBU && echo "cd to $directory"
+    directory=$(sed -n "1p" $cdhistorygreped)
+    $DEBUG && echo "cd to $directory"
     \cd "$directory"
 
   elif [ $nbResults == "0" ];
@@ -86,7 +86,7 @@ cdd() {
     # execute user choice
     if [ "$line" != "" ]; 
     then 
-      directory=$(sed -n "${line}p" $cdhistorygreped | cat)
+      directory=$(sed -n "${line}p" $cdhistorygreped)
       $DEBUG && echo $directory
       \cd "$directory"
     fi; 
