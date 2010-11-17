@@ -99,3 +99,28 @@ cdd() {
   /bin/rm $cdhistorygrepedcolored
 }
 
+#
+# Clean up cd-history.
+# Sometime some folder does not exist anymore and are still in the cd history.
+# This command will remove every path not accessible.
+ccleanup() {
+
+  # dont execute this function if history is empty
+  if [ ! -f $cdhistory ];
+  then return; fi
+
+  # copy every working directory from the history to a temp file
+  tmp=$(mktemp)
+  cat $cdhistory | while read line;
+  do
+    if [ -d "$line" ];
+    then
+        echo $line >> $tmp
+    else
+        echo "Removing directory: $line"
+    fi
+  done;
+
+  # Finaly replace the cd-history file with the cleaned up temp file
+  mv $tmp $cdhistory
+}
