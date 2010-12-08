@@ -4,7 +4,7 @@
 cdhistory=~/.cd_history
 #cdhistorygreped=~/.cd_history_greped
 alias cd="cdh"
-cdh() { \cd "$*"; pwd >> $cdhistory; }
+cdh() { if [ "$*" == "" ]; then \cd; return; fi ;\cd "$*"; pwd >> $cdhistory; }
 
 cdd() { 
 
