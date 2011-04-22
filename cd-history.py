@@ -1,72 +1,130 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# This is a python 2 program
+# Try 2to3 for having a python 3 compatible one
 
-import io
-import re
-import sys
+import io, re, sys, os
 
-# print member of a given object
-def printm(obj):
-    for memeber in dir(obj):
-        print memeber
+# History file
+history_file = os.path.expanduser('~/.cdh_history')
 
-# TODO get env (probably in os)
-cdhistory="/home/lynch/.cd_history"
+# Actions
+class Cdh:
+	def echo_stdout(self, history):
+		"""Echo command parameters on stdout, useful for alias debugging"""
+		sys.stdout.write(' '.join(sys.argv[2:]))
+		return history
+	
+	def echo_stderr(self, history):
+		"""Echo command parameters on stderr, useful for alias debugging"""
+		sys.stderr.write(' '.join(sys.argv[2:]))
+		return history
+	
+	def list(self, history):
+		"""List the entire history"""
+		i = 0
+		for line in history:
+			sys.stderr.write('%3d   %s\n' % (i, line))
+			i += 1
+		return history
 
-def readLines():
-    f = io.open(cdhistory)
-    lines = f.readlines()
-    f.close()
-    # sort lines and remove duplicates
-    lines.sort()
-    prevline = ""
-    uniqlines = []
-    for line in lines:
-        if line != prevline:
-            uniqlines.append(line)
-            prevline = line
+	def add(self, history):
+		"""Add specified directory or current if any to the history"""
+		if len(sys.argv) > 2:
+			try:
+				os.chdir(''.join(sys.argv[2:]))
+			except OSError as (dummy, errmsg):
+				sys.stderr.write(errmsg + '\n')
+		history.add(unicode(os.getcwd()))
+		return history
+	
+	def search(self, history):
+		"""Search specified pattern in the history"""
+		results = list(history)
+		coloredresults = list(history)
+		color = 31
+		sys.stderr.write('Searching for ')
+		for pattern in sys.argv[2:]:
+			regexp = re.compile(pattern, re.IGNORECASE)
+			sys.stderr.write('\x1b[1;%dm%s\x1b[1;%dm ' % (color, pattern, 0))
+			subresults = []
+			subcoloredresults = []
+			nbresults = len(results)
+			for i in xrange(nbresults):
+				if regexp.search(coloredresults[i]):
+					subcoloredresults.append(regexp.sub('\x1b[1;%dm\g<0>\x1b[1;0m' % color, coloredresults[i]))
+					subresults.append(results[i])
+			results = subresults
+			coloredresults = subcoloredresults
+			color += 1
 
-    # TODO we should save it back to the file
-    return uniqlines
+		if len(sys.argv) <= 2:
+			sys.stderr.write('all directories')
+		sys.stderr.write('\n')
+		
+		# Only one directory
+		if len(results) == 1:
+			sys.stdout.write(results.pop())
+			sys.stderr.write('Found in %s.\n' % coloredresults.pop())
+		
+		# No result
+		elif len(results) == 0:
+			sys.stdout.write('.')
+			sys.stderr.write("No result.\n")
+		
+		# Choice to have
+		else:
+			i = 0
+			for line in coloredresults:
+				sys.stderr.write('%3d   %s\n' % (i, line))
+				i += 1
 
-def matchLines(lines, patterns):
-    matchinglines = []
-    for line in lines:
-        if matchLine(line, patterns):
-            matchinglines.append(line.replace('\n', ''))
-    return matchinglines
+			sys.stderr.write("Choose a directory : ",)
+			try:
+				a = int(sys.stdin.readline())
+				sys.stdout.write(results[a])
+				sys.stderr.write('OK.\n')
+			except ValueError:
+				sys.stdout.write('.')
+				sys.stderr.write('Invalid number.\n')
+			except IndexError:
+				sys.stdout.write('.')
+				sys.stderr.write('Unknowed entry.\n')
+		return history
+		
+	def usage(self, history):
+		"""Print usage"""
+		sys.stderr.write('Usage : %s action\n' % sys.argv[0])
+		sys.stderr.write('Where action could be :\n')
+		for action in Cdh.__dict__.keys():
+			if callable(Cdh.__dict__[action]):
+				sys.stderr.write('\t%s : %s\n' % (action, Cdh.__dict__[action].__doc__))
+		return history
 
-def matchLine(line, patterns):
-    for pattern in patterns:
-        if not re.compile(pattern, re.IGNORECASE).search(line):
-            return False
-    return True
+try:
+	# Reading history
+	history = set()
+	try:
+		f = io.open(history_file)
+		history = set([x.replace('\n', '') for x in f.readlines()])
+		f.close()
+	except IOError:
+		io.open(history_file, 'w').close() # touch
 
-#
-# MAIN
-#
+	# Ask the right method to handle
+	cdh = Cdh()
+	if len(sys.argv) > 1 and Cdh.__dict__.has_key(sys.argv[1]) and callable(Cdh.__dict__[sys.argv[1]]) :
+		history = Cdh.__dict__[sys.argv[1]](cdh, history)
+	else:
+		history = cdh.usage(history)
 
-# find lines that matches
-lines = readLines()
-patterns = sys.argv[1:]
-matchinglines = matchLines(lines, patterns)
-
-if len(matchinglines) == 1:
-    # only one result
-    sys.exit(matchinglines[0])
-elif len(matchinglines) == 0:
-    # no results
-    sys.exit("")
-else:
-    # present results to the user
-    i = 1
-    for line in matchinglines:
-        print i.__str__() + " " + line
-        i = i+1
-
-    # TODO fix error if user type enter or a non-number
-    print "choose a directory:"
-    a= input()
-    if a != "\n":
-        sys.exit(matchinglines[a - 1])
-
-# TODO the pyhont program must return a value
+	# Writing clean history
+	try:
+		f = io.open(history_file, 'w')
+		if f.writable():
+			f.write('\n'.join(history))
+		f.close()
+	except IOError:
+		pass
+except KeyboardInterrupt:
+	sys.stdout.write('.')
+	sys.stderr.write('Interrupted.\n')

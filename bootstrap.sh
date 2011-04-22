@@ -1,9 +1,20 @@
 # This bootstrap is just a way to make your shell cd into the directory
-# the real work is done by the python script
+# found by the python script. The real work is done by this one.
 
-cdd () {
-    tmp=$(mktemp)
-    python ~/projet/python/cd-history/cd-history.py $* 2> $tmp
-    cd "$(cat $tmp)"
-    /bin/rm $tmp
+alias cdh='python2 ~/.cdh.py'
+function c() {
+	cd `cdh search $*`
 }
+
+# With these lines in your .bashrc, you have to :
+# - type 'cdh add' to add the current directory to search list
+# - type 'cdh add <directory>' to add the <directory> to search list
+# - type 'cdh list' to list the indexed directory
+# - type 'c <pattern>' to search the <pattern> and jump to the right directory
+
+# If you want to index all visited directory, try to add these lines :
+
+function cdh_cd() {
+	cd $* && cdh add
+}
+alias cd='cdh_cd'
