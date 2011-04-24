@@ -21,7 +21,7 @@ class Cdh:
 	
 	def list(self, history):
 		"""List the entire history"""
-		i = 0
+		i = 1
 		for line in history:
 			sys.stderr.write('%3d   %s\n' % (i, line))
 			i += 1
@@ -81,7 +81,7 @@ class Cdh:
 			sys.stderr.write("Choose a directory : ",)
 			try:
 				a = int(sys.stdin.readline())
-				sys.stdout.write(results[a])
+				sys.stdout.write(results[a - 1])
 				sys.stderr.write('OK.\n')
 			except ValueError:
 				sys.stdout.write('.')

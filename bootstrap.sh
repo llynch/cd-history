@@ -1,7 +1,7 @@
 # This bootstrap is just a way to make your shell cd into the directory
 # found by the python script. The real work is done by this one.
 
-alias cdh='python ~/.cdh.py'
+alias cdh="python ~/.cdh.py"
 function c() {
 	cd `cdh search $*`
 }
