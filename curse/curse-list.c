@@ -1,3 +1,5 @@
+// reference: http://www.captain.at/howto-curses-example.php
+
 #include <time.h>
 #include <stdio.h>
 #include <unistd.h>

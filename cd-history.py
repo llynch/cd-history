@@ -5,7 +5,7 @@
 import io, re, sys, os
 
 # History file
-history_file = os.path.expanduser('~/.cdh_history')
+history_file = os.path.expanduser('~/.cd_history')
 
 # Actions
 class Cdh:
@@ -73,7 +73,7 @@ class Cdh:
 		
 		# Choice to have
 		else:
-			i = 0
+			i = 1
 			for line in coloredresults:
 				sys.stderr.write('%3d   %s\n' % (i, line))
 				i += 1
