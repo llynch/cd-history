@@ -40,7 +40,9 @@ class Cdh:
 	def search(self, history):
 		"""Search specified pattern in the history"""
 		results = list(history)
+		results.sort()
 		coloredresults = list(history)
+		coloredresults.sort()
 		color = 31
 		sys.stderr.write('Searching for ')
 		for pattern in sys.argv[2:]:
@@ -81,7 +83,9 @@ class Cdh:
 			sys.stderr.write("Choose a directory : ",)
 			try:
 				a = int(sys.stdin.readline())
-				sys.stdout.write(results[a - 1])
+				if a > 0:
+					a = a - 1
+				sys.stdout.write(results[a])
 				sys.stderr.write('OK.\n')
 			except ValueError:
 				sys.stdout.write('.')
@@ -128,3 +132,5 @@ try:
 except KeyboardInterrupt:
 	sys.stdout.write('.')
 	sys.stderr.write('Interrupted.\n')
+
+# vim: noet
