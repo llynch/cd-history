@@ -36,6 +36,20 @@ class Cdh:
 				sys.stderr.write(errmsg + '\n')
 		history.add(unicode(os.getcwd()))
 		return history
+
+	def cleanup(self, history):
+		missings = []
+
+		for element in history:
+			if not os.path.exists(element):
+				missings.append(element)
+
+		for missing in missings:
+			print "Removing missing folder: %s" % missing
+			history.remove(missing)
+
+		return history
+
 	
 	def search(self, history):
 		"""Search specified pattern in the history"""
