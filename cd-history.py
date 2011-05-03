@@ -34,7 +34,7 @@ class Cdh:
 				os.chdir(''.join(sys.argv[2:]))
 			except OSError as (dummy, errmsg):
 				sys.stderr.write(errmsg + '\n')
-		history.add(unicode(os.getcwd()))
+		history.add(unicode(os.getcwd(), 'utf-8'))
 		return history
 
 	def cleanup(self, history):

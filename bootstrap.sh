@@ -3,7 +3,7 @@
 
 alias cdh="python ~/.cdh.py"
 function c() {
-	cd `cdh search $*`
+	\cd "`cdh search $*`"
 }
 
 # With these lines in your .bashrc, you have to :
@@ -15,6 +15,6 @@ function c() {
 # If you want to index all visited directory, try to add these lines :
 
 function cdh_cd() {
-	cd $* && cdh add
+	\cd "$@" && cdh add
 }
 alias cd='cdh_cd'
