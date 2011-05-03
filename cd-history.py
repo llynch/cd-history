@@ -60,8 +60,8 @@ class Cdh:
 		color = 31
 		sys.stderr.write('Searching for ')
 		for pattern in sys.argv[2:]:
-			regexp = re.compile(pattern, re.IGNORECASE)
-			sys.stderr.write('\x1b[1;%dm%s\x1b[1;%dm ' % (color, pattern, 0))
+			regexp = re.compile(unicode(pattern, 'utf-8'), re.IGNORECASE)
+			sys.stderr.write(('\x1b[1;%dm%s\x1b[1;%dm ' % (color, unicode(pattern, 'utf-8'), 0)).encode('utf-8'))
 			subresults = []
 			subcoloredresults = []
 			nbresults = len(results)
@@ -79,8 +79,9 @@ class Cdh:
 		
 		# Only one directory
 		if len(results) == 1:
-			sys.stdout.write(results.pop())
-			sys.stderr.write('Found in %s.\n' % coloredresults.pop())
+			print results.pop().encode("utf-8")
+			sys.stderr.write('Found in %s.\n' % coloredresults.pop().encode("utf-8"))
+			pass
 		
 		# No result
 		elif len(results) == 0:
@@ -91,7 +92,7 @@ class Cdh:
 		else:
 			i = 1
 			for line in coloredresults:
-				sys.stderr.write('%3d   %s\n' % (i, line))
+				sys.stderr.write('%3d   %s\n' % (i, line.encode('utf-8')))
 				i += 1
 
 			sys.stderr.write("Choose a directory : ",)
@@ -131,7 +132,7 @@ try:
 	# Ask the right method to handle
 	cdh = Cdh()
 	if len(sys.argv) > 1 and Cdh.__dict__.has_key(sys.argv[1]) and callable(Cdh.__dict__[sys.argv[1]]) :
-		history = Cdh.__dict__[sys.argv[1]](cdh, history)
+		history = Cdh.__dict__[unicode(sys.argv[1], 'utf-8')](cdh, history)
 	else:
 		history = cdh.usage(history)
 
