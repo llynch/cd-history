@@ -13,12 +13,12 @@ class Cdh:
 		"""Echo command parameters on stdout, useful for alias debugging"""
 		sys.stdout.write(' '.join(sys.argv[2:]))
 		return history
-	
+
 	def echo_stderr(self, history):
 		"""Echo command parameters on stderr, useful for alias debugging"""
 		sys.stderr.write(' '.join(sys.argv[2:]))
 		return history
-	
+
 	def list(self, history):
 		"""List the entire history"""
 		i = 1
@@ -50,7 +50,7 @@ class Cdh:
 
 		return history
 
-	
+
 	def search(self, history):
 		"""Search specified pattern in the history"""
 		results = list(history)
@@ -76,18 +76,18 @@ class Cdh:
 		if len(sys.argv) <= 2:
 			sys.stderr.write('all directories')
 		sys.stderr.write('\n')
-		
+
 		# Only one directory
 		if len(results) == 1:
 			print results.pop().encode("utf-8")
 			sys.stderr.write('Found in %s.\n' % coloredresults.pop().encode("utf-8"))
 			pass
-		
+
 		# No result
 		elif len(results) == 0:
 			sys.stdout.write('.')
 			sys.stderr.write("No result.\n")
-		
+
 		# Choice to have
 		else:
 			i = 1
@@ -109,7 +109,7 @@ class Cdh:
 				sys.stdout.write('.')
 				sys.stderr.write('Unknowed entry.\n')
 		return history
-		
+
 	def usage(self, history):
 		"""Print usage"""
 		sys.stderr.write('Usage : %s action\n' % sys.argv[0])
@@ -140,7 +140,7 @@ try:
 	try:
 		f = io.open(history_file, 'w')
 		if f.writable():
-			f.write('\n'.join(history))
+			f.write(u'\n'.join(history))
 		f.close()
 	except IOError:
 		pass

@@ -1,7 +1,11 @@
 # This bootstrap is just a way to make your shell cd into the directory
 # found by the python script. The real work is done by this one.
 
-alias cdh="python ~/cd-history/cd-history.py"
+cd_history_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+echo $(dirname "${BASH_SOURCE[0]}")
+
+
+alias cdh="python $cd_history_dir/cd-history.py"
 function c() {
 	\cd "`cdh search $*`"
 }
