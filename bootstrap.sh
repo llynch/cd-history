@@ -3,7 +3,7 @@
 
 cd_history_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-alias cdh="python $cd_history_dir/cd-history.py"
+alias cdh="python $cd_history_dir/cd_history.py"
 function c() {
 	\cd "`cdh search $*`"
 }

@@ -3,9 +3,24 @@
 # Try 2to3 for having a python 3 compatible one
 
 import io, re, sys, os
+import collections
 
 # History file
 history_file = os.path.expanduser('~/.cd_history')
+
+
+try:
+	unicode('test pyhon 2 or 3')
+	def byte_to_string(bs):
+		return bs
+
+except:
+	def unicode(s, encoding=None):
+		return str(s)
+
+	def byte_to_string(bs):
+		return bs.encode('utf-8')
+
 
 # Actions
 class Cdh:
@@ -32,8 +47,8 @@ class Cdh:
 		if len(sys.argv) > 2:
 			try:
 				os.chdir(''.join(sys.argv[2:]))
-			except OSError as (dummy, errmsg):
-				sys.stderr.write(errmsg + '\n')
+			except OSError as err:
+				sys.stderr.write(err)
 		history.add(unicode(os.getcwd(), 'utf-8'))
 		return history
 
@@ -45,13 +60,13 @@ class Cdh:
 				missings.append(element)
 
 		for missing in missings:
-			print "Removing missing folder: %s" % missing
+			print("Removing missing folder: %s" % missing)
 			history.remove(missing)
 
 		return history
 
 
-	def search(self, history):
+	def search(self, history, args=None):
 		"""Search specified pattern in the history"""
 		results = list(history)
 		results.sort()
@@ -59,15 +74,18 @@ class Cdh:
 		coloredresults.sort()
 		color = 31
 		sys.stderr.write('Searching for ')
-		for pattern in sys.argv[2:]:
-			regexp = re.compile(unicode(pattern, 'utf-8'), re.IGNORECASE)
-			sys.stderr.write(('\x1b[1;%dm%s\x1b[1;%dm ' % (color, unicode(pattern, 'utf-8'), 0)).encode('utf-8'))
+		args = args or sys.argv[2:]
+		for pattern in args:
+			regexp = re.compile(pattern, re.IGNORECASE)
+			sys.stderr.write(('\x1b[1;%dm%s\x1b[1;%dm ' % (color, pattern, 0)))
 			subresults = []
 			subcoloredresults = []
 			nbresults = len(results)
-			for i in xrange(nbresults):
+			for i in range(nbresults):
 				if regexp.search(coloredresults[i]):
-					subcoloredresults.append(regexp.sub('\x1b[1;%dm\g<0>\x1b[1;0m' % color, coloredresults[i]))
+					subcoloredresults.append(
+						regexp.sub(('\x1b[1;%dm\g<0>\x1b[1;0m' % color), coloredresults[i])
+					)
 					subresults.append(results[i])
 			results = subresults
 			coloredresults = subcoloredresults
@@ -79,8 +97,8 @@ class Cdh:
 
 		# Only one directory
 		if len(results) == 1:
-			print results.pop().encode("utf-8")
-			sys.stderr.write('Found in %s.\n' % coloredresults.pop().encode("utf-8"))
+			print(results.pop())
+			sys.stderr.write('Found in %s.\n' % coloredresults.pop())
 			pass
 
 		# No result
@@ -92,7 +110,7 @@ class Cdh:
 		else:
 			i = 1
 			for line in coloredresults:
-				sys.stderr.write('%3d   %s\n' % (i, line.encode('utf-8')))
+				sys.stderr.write(u'%3d   %s\n' % (i, line))
 				i += 1
 
 			sys.stderr.write("Choose a directory : ",)
@@ -114,38 +132,41 @@ class Cdh:
 		"""Print usage"""
 		sys.stderr.write('Usage : %s action\n' % sys.argv[0])
 		sys.stderr.write('Where action could be :\n')
-		for action in Cdh.__dict__.keys():
-			if callable(Cdh.__dict__[action]):
+		for action in list(Cdh.__dict__.keys()):
+			if isinstance(Cdh.__dict__[action], collections.Callable):
 				sys.stderr.write('\t%s : %s\n' % (action, Cdh.__dict__[action].__doc__))
 		return history
 
-try:
-	# Reading history
-	history = set()
-	try:
-		f = io.open(history_file)
-		history = set([x.replace('\n', '') for x in f.readlines()])
-		f.close()
-	except IOError:
-		io.open(history_file, 'w').close() # touch
 
-	# Ask the right method to handle
-	cdh = Cdh()
-	if len(sys.argv) > 1 and Cdh.__dict__.has_key(sys.argv[1]) and callable(Cdh.__dict__[sys.argv[1]]) :
-		history = Cdh.__dict__[unicode(sys.argv[1], 'utf-8')](cdh, history)
-	else:
-		history = cdh.usage(history)
-
-	# Writing clean history
+if __name__ == '__main__':
 	try:
-		f = io.open(history_file, 'w')
-		if f.writable():
-			f.write(u'\n'.join(history))
-		f.close()
-	except IOError:
-		pass
-except KeyboardInterrupt:
-	sys.stdout.write('.')
-	sys.stderr.write('Interrupted.\n')
+		# Reading history
+		history = set()
+		try:
+			f = io.open(history_file)
+			history = set([x.strip() for x in f.readlines()])
+			f.close()
+		except IOError:
+			io.open(history_file, 'w').close() # touch
+
+		# Ask the right method to handle
+		cdh = Cdh()
+		if len(sys.argv) > 1 and sys.argv[1] in Cdh.__dict__ and isinstance(Cdh.__dict__[sys.argv[1]], collections.Callable) :
+			history = Cdh.__dict__[sys.argv[1]](cdh, history)
+		else:
+			history = cdh.usage(history)
+
+		# Writing clean history
+		try:
+			f = io.open(history_file, 'w')
+			for line in history:
+				f.write(line)
+				f.write(u'\n')
+			f.close()
+		except IOError:
+			pass
+	except KeyboardInterrupt:
+		sys.stdout.write('.')
+		sys.stderr.write('Interrupted.\n')
 
 # vim: noet
