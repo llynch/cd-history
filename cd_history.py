@@ -5,6 +5,15 @@
 import io, re, sys, os
 import collections
 
+try:
+	import builtins
+	# python 3
+	unicode = lambda string, encoding: string
+except:
+	pass
+
+
+
 # History file
 history_file = os.path.expanduser('~/.cd_history')
 
@@ -50,6 +59,7 @@ class Cdh:
 			except OSError as err:
 				sys.stderr.write(err)
 		history.add(unicode(os.getcwd(), 'utf-8'))
+		#history.add(os.getcwd())
 		return history
 
 	def cleanup(self, history):
@@ -168,5 +178,3 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:
 		sys.stdout.write('.')
 		sys.stderr.write('Interrupted.\n')
-
-# vim: noet

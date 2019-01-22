@@ -3,10 +3,21 @@
 
 cd_history_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-alias cdh="python $cd_history_dir/cd_history.py"
-function c() {
+alias cdh="python ~/cd-history/cd_history.py"
+function legacy_c() {
 	\cd "`cdh search $*`"
 }
+
+function fzf_c() {
+    \cd "`fzf -q "$*" < ~/.cd_history`"
+}
+
+if [ -f `which fzf` ];
+then
+    alias c=fzf_c
+else
+    alias c=legacy_c
+fi
 
 # With these lines in your .bashrc, you have to :
 # - type 'cdh add' to add the current directory to search list
