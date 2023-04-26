@@ -9,7 +9,7 @@ function legacy_c() {
 }
 
 function fzf_c() {
-    \cd "`fzf -q "$*" < ~/.cd_history`"
+    \cd "`fzf -q "$*" --prompt="  " --layout=reverse --height='20' --border < ~/.cd_history`"
 }
 
 if [ -f `which fzf` ];
