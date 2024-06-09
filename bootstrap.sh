@@ -5,11 +5,12 @@ cd_history_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 alias cdh="python ~/cd-history/cd_history.py"
 function legacy_c() {
-	\cd "`cdh search $*`"
+	\cd "`cdh search $*`" || cdh cleanup
 }
 
 function fzf_c() {
-    \cd "`fzf -q "$*" --prompt="  " --layout=reverse --height='20' --border < ~/.cd_history`"
+    # 🔎 
+    \cd "`fzf -1 -e -q "$*" --prompt="🔎  " --layout=reverse --height='20' --border --preview='tree {}' < ~/.cd_history`" || cdh cleanup
 }
 
 if [ -f `which fzf` ];
@@ -27,7 +28,7 @@ fi
 
 # If you want to index all visited directory, try to add these lines :
 
-function cdh_cd() {
+function cdh_add() {
 	\cd "$@" && cdh add
 }
-alias cd='cdh_cd'
+alias cd='cdh_add'
