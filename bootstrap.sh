@@ -1,9 +1,9 @@
 # This bootstrap is just a way to make your shell cd into the directory
 # found by the python script. The real work is done by this one.
 
-cd_history_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+export CD_HISTORY_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-alias cdh="python ${cd_history_dir}/cd_history.py"
+alias cdh="python ${CD_HISTORY_DIR}/cd_history.py"
 function legacy_c() {
 	\cd "`cdh search $*`" || cdh cleanup
 }
