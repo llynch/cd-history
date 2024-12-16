@@ -4,6 +4,7 @@
 
 import io, re, sys, os
 import collections
+import inspect
 
 try:
 	import builtins
@@ -63,6 +64,7 @@ class Cdh:
 		return history
 
 	def cleanup(self, history):
+		"""Remove missing folders"""
 		missings = []
 
 		for element in history:
@@ -94,7 +96,7 @@ class Cdh:
 			for i in range(nbresults):
 				if regexp.search(coloredresults[i]):
 					subcoloredresults.append(
-						regexp.sub(('\x1b[1;%dm\g<0>\x1b[1;0m' % color), coloredresults[i])
+						regexp.sub(('\x1b[1;%dm\\g<0>\x1b[1;0m' % color), coloredresults[i])
 					)
 					subresults.append(results[i])
 			results = subresults
@@ -143,7 +145,7 @@ class Cdh:
 		sys.stderr.write('Usage : %s action\n' % sys.argv[0])
 		sys.stderr.write('Where action could be :\n')
 		for action in list(Cdh.__dict__.keys()):
-			if isinstance(Cdh.__dict__[action], collections.Callable):
+			if inspect.isfunction(Cdh.__dict__[action]):
 				sys.stderr.write('\t%s : %s\n' % (action, Cdh.__dict__[action].__doc__))
 		return history
 
@@ -161,7 +163,7 @@ if __name__ == '__main__':
 
 		# Ask the right method to handle
 		cdh = Cdh()
-		if len(sys.argv) > 1 and sys.argv[1] in Cdh.__dict__ and isinstance(Cdh.__dict__[sys.argv[1]], collections.Callable) :
+		if len(sys.argv) > 1 and sys.argv[1] in Cdh.__dict__ and inspect.isfunction(Cdh.__dict__[sys.argv[1]]) :
 			history = Cdh.__dict__[sys.argv[1]](cdh, history)
 		else:
 			history = cdh.usage(history)

@@ -3,7 +3,7 @@
 
 export CD_HISTORY_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-alias cdh="python ${CD_HISTORY_DIR}/cd_history.py"
+alias cdh="python3 ${CD_HISTORY_DIR}/cd_history.py"
 function legacy_c() {
 	\cd "`cdh search $*`" || cdh cleanup
 }
