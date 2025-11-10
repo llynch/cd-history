@@ -10,7 +10,7 @@ function legacy_c() {
 
 function fzf_c() {
     # 🔎 
-    \cd "`fzf -1 -e -q "$*" --prompt="🔎  " --layout=reverse --height='20' --border --preview='tree {}' < ~/.cd_history`" || cdh cleanup
+    \cd "`fzf -1 -e -q "$*" --prompt="🔎 " --layout=reverse --height='20' --border --preview='tree {}' < ~/.cd_history`" || cdh cleanup
 }
 
 if [ -f `which fzf` ];

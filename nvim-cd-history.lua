@@ -53,7 +53,7 @@ function M.c(opts)
             previewer = previewers.new_termopen_previewer({
                 title = 'directory',
                 get_command = function (entry)
-                    return 'timeout 1 lsd --tree --depth 2 --color=always ' .. entry.value .. ' | head -n 50'
+                    return 'timeout 1 eza --tree -L 1 --color=always ' .. entry.value .. ' | head -n 50'
                 end
             }),
 
