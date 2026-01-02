@@ -32,11 +32,13 @@ end
 
 function M.c(opts)
 
+    opts.finder_fn = opts.finder_fn or M.read_cd_history
+
     pickers
         .new(opts, {
             finder = finders.new_dynamic({
                 fn = function()
-                    return M.read_cd_history()
+                    return opts.finder_fn()
                 end,
                 entry_maker = function(entry)
                     return {
